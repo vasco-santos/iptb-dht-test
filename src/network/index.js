@@ -1,7 +1,10 @@
-const execa = require('execa')
+'use strict'
 
-const run = (async () => {
-  const n = 4
+const execa = require('execa')
+const { intensiveLookup } = require('./lookup')
+const { intensiveChurn } = require('./churn')
+
+const setup = async (n) => {
   let out
 
   // Create iptb testbed with js-ipfs nodes
@@ -32,10 +35,14 @@ const run = (async () => {
     console.info(`node ${i} repo properly configured and node started`)
   }
 
-  // Put to the dht
-  await execa.shell('iptb run 1 -- ipfs dht put key value')
+  // Create ipfs executer
+  const ipfsExec = async (peerId, cmd) => await execa.shell(`iptb run ${peerId} -- ipfs ${cmd}`)
 
-  // Get to the DHT
-  out = await execa.shell('iptb run 1 -- ipfs dht get key')
-  console.log('stdout dht get: ', out.stdout)
-})()
+  return ipfsExec
+}
+
+module.exports = {
+  setupNetwork: setup,
+  intensiveLookup,
+  intensiveChurn
+}
