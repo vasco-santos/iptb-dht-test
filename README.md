@@ -2,6 +2,8 @@
 
 `ìptb-dht-test` aims to create a testbed for the DHT being used in `js-ipfs`.
 
+**ATTENTION:** This is currently a WIP work. It needs [ipfs/js-ipfs#856](https://github.com/ipfs/js-ipfs/pull/856) to be used, since the `js-ipfs` DHT cli is not released yet.
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -40,6 +42,7 @@ There are several parameters that can be used with this test:
 - network size
 - lookup factor
 - churn factor
+- iterations
 
 ## Experience
 
@@ -47,7 +50,6 @@ The metrics that can be obtained with this test are the following:
 
 - lookup average round trip latency
 - success rate
-- timeouts
 
 ## Results
 

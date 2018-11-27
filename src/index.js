@@ -1,12 +1,23 @@
 'use strict'
 
-const { setupNetwork, intensiveLookup } = require('./network')
+const Network = require('./network')
 
 const run = (async () => {
-  const n = 4
+  const n = 10
+  const iterations = 200
+  const lookupFactor = 2
+  const churnFactor = 2
 
   // setup network
-  const ipfsExec = await setupNetwork(n)
+  const network = new Network(n, iterations, lookupFactor, churnFactor)
+  await network.setup()
 
-  intensiveLookup(ipfsExec, n, 2, 50)
+  // start simulation
+  await network.start()
+
+  // stop simulation
+  await network.stop()
+
+  // save analysis
+  network.saveAnalysis()
 })()

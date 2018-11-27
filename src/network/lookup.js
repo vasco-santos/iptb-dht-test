@@ -1,7 +1,15 @@
 'use strict'
 
-const intensiveLookup = async (ipfsExec, n, factor, iterations) => {
+const lookup = async (ipfsExec, n, factor, iterations) => {
   let out
+  let analysis = {
+    putFailError: 0,
+    putFailOffline: 0,
+    getFailError: 0,
+    getFailOffline: 0,
+    getFailExpected: 0
+  }
+
   // Map with key and value
   const data = {}
 
@@ -16,9 +24,14 @@ const intensiveLookup = async (ipfsExec, n, factor, iterations) => {
     const peerId = Math.floor(Math.random() * n)
 
     // Put data
-    await ipfsExec(peerId, `dht put ${key} ${value}`)
-    // await execa.shell(`iptb run ${peerId} -- ipfs dht put ${key} ${value}`)
-    data[key] = value
+    out = await ipfsExec(peerId, `dht put ${key} ${value}`)
+    if (out.stderr) {
+      analysis.putFailError = analysis.putFailError + 1
+    } else if (out.stdout.includes('this command must be run in online mode')) {
+      analysis.putFailOffline = analysis.putFailOffline + 1
+    } else {
+      data[key] = value
+    }
 
     // Choose random key to get
     const keyToGet = `key${Math.floor(Math.random() * (n * factor))}`
@@ -27,14 +40,21 @@ const intensiveLookup = async (ipfsExec, n, factor, iterations) => {
     if (data[keyToGet]) {
       // Get to the DHT
       out = await ipfsExec(peerId, `dht get ${key}`)
-      // out = await execa.shell(`iptb run ${peerId} -- ipfs dht get ${key}`)
-      console.log('out', i, out.stdout, out.stdout.includes(data[key]))
+
+      if (out.stderr) {
+        analysis.getFailError = analysis.getFailError + 1
+      } else if (out.stdout.includes('this command must be run in online mode')) {
+        analysis.getFailOffline = analysis.getFailOffline + 1
+      } else if (!out.stdout.includes(data[key])) {
+        analysis.getFailExpected = analysis.getFailExpected + 1
+      }
     }
 
     i++
   } while (i < iterations)
+  return analysis
 }
 
 module.exports = {
-  intensiveLookup
+  lookup
 }
