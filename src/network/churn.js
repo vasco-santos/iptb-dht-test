@@ -43,7 +43,7 @@ class NetworkChurn {
     }
 
     // TODO: period according to the param received
-    churnHandle.runPeriodically(this._stopAndStart, 200)
+    churnHandle.runPeriodically(this._stopAndStart, 1000 / this._churnFactor)
 
     this._churnHandle = churnHandle
   }

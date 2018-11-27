@@ -83,7 +83,7 @@ class Network {
 
     console.log(`Get failed error: ${analysis.getFailError}`)
     console.log(`Get failed offline: ${analysis.getFailOffline}`)
-    console.log(`Get failed expected value: ${analysis.getFailExpected}`)
+    console.log(`Get failed expected value (not synced): ${analysis.getFailExpected}`)
   }
 }
 
