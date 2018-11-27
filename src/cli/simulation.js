@@ -9,22 +9,22 @@ module.exports = {
     nodes: {
       default: 10,
       alias: 'n',
-      describe: 'Number of nodes. Default: 10',
+      describe: 'Number of nodes.',
     },
     iterations: {
       default: 200,
       alias: 'i',
-      describe: 'Number of iterations of putting and getting data. Default: 200',
+      describe: 'Number of iterations of putting and getting data.',
     },
     'lookup-factor': {
       default: 2,
       alias: 'lf',
-      describe: 'Keys replication for the number of nodes: Default: 2'
+      describe: 'Keys replication for the number of nodes.'
     },
     'churn-factor': {
       default: 2,
       alias: 'cf',
-      describe: 'Churn per second: Default: 2'
+      describe: 'Churn per second.'
     }
   },
   async handler(argv) {
@@ -44,6 +44,6 @@ module.exports = {
     await network.stop()
 
     // save analysis
-    network.saveAnalysis(n, iterations, lookupFactor, churnFactor)
+    network.saveAnalysis()
   }
 }

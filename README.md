@@ -1,6 +1,6 @@
 # iptb-dht-test
 
-`ìptb-dht-test` aims to create a testbed for the DHT being used in `js-ipfs`.
+`ìptb-dht-test` aims to create stress tests for the DHT being used in `js-ipfs`.
 
 **ATTENTION:** This is currently a WIP work. It needs [ipfs/js-ipfs#856](https://github.com/ipfs/js-ipfs/pull/856) to be used, since the `js-ipfs` DHT cli is not released yet.
 
@@ -37,12 +37,34 @@ Needs to install plugin for using `js-ipfs`. Information can be otained in [ipfs
 
 ## Usage
 
-There are several parameters that can be used with this test:
+With this tool, we can create a DHT simulation, as well as visualize the results obtained from previous simulations (data stored in files).
 
-- network size
-- lookup factor
-- churn factor
-- iterations
+Use the **simulation** command:
+
+```sh
+> npm run start -- simulation --help
+
+Start a dht simulation
+
+Options:
+  --version              Show version number                           [boolean]
+  --help                 Show help                                     [boolean]
+  --nodes, -n            Number of nodes.                          [default: 10]
+  --iterations, -i       Number of iterations of putting and getting data.
+                                                                  [default: 200]
+  --lookup-factor, --lf  Keys replication for the number of nodes.  [default: 2]
+  --churn-factor, --cf   Churn per second.                          [default: 2]
+```
+
+According to the above, we can execute the following command to overwrite the default number of nodes:
+
+```sh
+npm run start -- simulation --nodes 15
+```
+
+Use the **statistics** comand:
+
+**TODO**
 
 ## Experience
 

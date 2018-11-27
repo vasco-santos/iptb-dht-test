@@ -3,11 +3,17 @@
 const lookup = async (ipfsExec, n, factor, iterations) => {
   let out
   let analysis = {
-    putFailError: 0,
-    putFailOffline: 0,
-    getFailError: 0,
-    getFailOffline: 0,
-    getFailExpected: 0
+    put: {
+      failError: 0,
+      failOffline: 0,
+      rtt: []
+    },
+    get: {
+      failError: 0,
+      failOffline: 0,
+      failExpected: 0,
+      rtt: []
+    }
   }
 
   // Map with key and value
@@ -22,13 +28,18 @@ const lookup = async (ipfsExec, n, factor, iterations) => {
 
     // Choose random peer to put
     const peerId = Math.floor(Math.random() * n)
+    const putStart = (new Date).getTime()
 
     // Put data
     out = await ipfsExec(peerId, `dht put ${key} ${value}`)
+
+    // Store rtt
+    analysis.put.rtt.push((new Date).getTime() - putStart)
+
     if (out.stderr) {
-      analysis.putFailError = analysis.putFailError + 1
+      analysis.put.failError = analysis.put.failError + 1
     } else if (out.stdout.includes('this command must be run in online mode')) {
-      analysis.putFailOffline = analysis.putFailOffline + 1
+      analysis.put.failOffline = analysis.put.failOffline + 1
     } else {
       data[key] = value
     }
@@ -38,15 +49,17 @@ const lookup = async (ipfsExec, n, factor, iterations) => {
 
     // Check if we have previous put that key
     if (data[keyToGet]) {
+      const getStart = (new Date).getTime()
       // Get to the DHT
       out = await ipfsExec(peerId, `dht get ${key}`)
 
+      analysis.get.rtt.push((new Date).getTime() - getStart)
       if (out.stderr) {
-        analysis.getFailError = analysis.getFailError + 1
+        analysis.get.failError = analysis.get.failError + 1
       } else if (out.stdout.includes('this command must be run in online mode')) {
-        analysis.getFailOffline = analysis.getFailOffline + 1
+        analysis.get.failOffline = analysis.get.failOffline + 1
       } else if (!out.stdout.includes(data[key])) {
-        analysis.getFailExpected = analysis.getFailExpected + 1
+        analysis.get.failExpected = analysis.get.failExpected + 1
       }
     }
 

@@ -1,8 +1,13 @@
 'use strict'
 
+const fs = require('fs')
 const execa = require('execa')
 const { lookup } = require('./lookup')
 const NetworkChurn = require('./churn')
+
+const debug = require('debug')
+const log = debug('iptb-dht-test:network:setup')
+log.error = debug('iptb-dht-test:network:setup:error')
 
 class Network {
   constructor (n, iterations, lookupFactor, churnFactor) {
@@ -20,15 +25,15 @@ class Network {
 
     // Create iptb testbed with js-ipfs nodes
     await execa.shell(`iptb testbed create -count ${this._n} -type localipfs -force -attr binary,$(which jsipfs)`)
-    console.info('testbed created')
+    log('testbed created')
 
     // Init repos
     await execa.shell('iptb init')
-    console.info('repos initialized')
+    log('repos initialized')
 
     // Set proper config to use the first node with no bootstrap nodes
     await execa.shell('iptb run 0 -- ipfs config --json Bootstrap \'[]\'')
-    console.info('node 0 repo properly configured')
+    log('node 0 repo properly configured')
 
     // Start node 0
     await execa.shell('iptb start 0 --wait -- --enable-dht-experiment')
@@ -36,14 +41,14 @@ class Network {
     out = await execa.shell('iptb run 0 -- ipfs id --format="<addrs>"')
     const addr = out.stdout.split(/\r?\n/)[2]
 
-    console.info(`node 0 started with addr ${addr}`)
+    log(`node 0 started with addr ${addr}`)
 
     // Set proper config to the remaning nodes and start them
     for (let i = 1; i < this._n; i++) {
       await execa.shell(`iptb run ${i} -- ipfs config --json Bootstrap '["${addr}"]'`)
       // ipfs config --json Bootstrap '["/ip4/127.0.0.1/tcp/59163/ipfs/QmYEouqLdPepu5GiVL9LLxSByvophh8XaSq8wmrXWzupu6"]'
       await execa.shell(`iptb start ${i} --wait -- --enable-dht-experiment`)
-      console.info(`node ${i} repo properly configured and node started`)
+      log(`node ${i} repo properly configured and node started`)
     }
 
     // Create ipfs executer
@@ -69,21 +74,34 @@ class Network {
   async stop () {
     for (let i = 0; i < this._n; i++) {
       await execa.shell(`iptb stop ${i}`)
-      console.info(`node ${i} stopped`)
+      log(`node ${i} stopped`)
     }
   }
 
+  // save to file
   saveAnalysis () {
-    const analysis = this._analysis
-
     console.log('FINAL ANALYSIS')
 
-    console.log(`Put failed error: ${analysis.putFailError}`)
-    console.log(`Put failed offline: ${analysis.putFailOffline}`)
+    console.log(`Put failed error: ${this._analysis.put.failError}`)
+    console.log(`Put failed offline: ${this._analysis.put.failOffline}`)
 
-    console.log(`Get failed error: ${analysis.getFailError}`)
-    console.log(`Get failed offline: ${analysis.getFailOffline}`)
-    console.log(`Get failed expected value (not synced): ${analysis.getFailExpected}`)
+    console.log(`Get failed error: ${this._analysis.get.failError}`)
+    console.log(`Get failed offline: ${this._analysis.get.failOffline}`)
+    console.log(`Get failed expected value (not synced): ${this._analysis.get.failExpected}`)
+
+    const result = {
+      inputs: {
+        n: this._n,
+        i: this._iterations,
+        lf: this._lookupFactor,
+        cf: this._churnFactor
+      },
+      results: this._analysis
+    }
+
+    const filename = `${(new Date).getTime()}-${this._n}-${this._iterations}-${this._lookupFactor}-${this._churnFactor}`
+
+    fs.writeFileSync(`${process.cwd()}/results/${filename}.json`, JSON.stringify(result, null, 4), { flag: 'wx' })
   }
 }
 
