@@ -1,10 +1,12 @@
 'use strict'
 
+const statistics = require('../statistics')
+
 module.exports = {
-  command: 'statistics [options]',
+  command: 'statistics <filePath>',
   describe: 'Show dht simulation statistics',
   builder: {},
   handler(argv) {
-    console.log('TODO')
+    statistics.getFromFile(argv.filePath)
   }
 }

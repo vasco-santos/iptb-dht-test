@@ -44,6 +44,8 @@ Use the **simulation** command:
 ```sh
 > npm run start -- simulation --help
 
+simulation
+
 Start a dht simulation
 
 Options:
@@ -64,7 +66,17 @@ npm run start -- simulation --nodes 15
 
 Use the **statistics** comand:
 
-**TODO**
+```sh
+> npm run start -- statistics --help
+
+statistics <filePath>
+
+Show dht simulation statistics
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
+```
 
 ## Experience
 

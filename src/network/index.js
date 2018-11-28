@@ -4,6 +4,7 @@ const fs = require('fs')
 const execa = require('execa')
 const { lookup } = require('./lookup')
 const NetworkChurn = require('./churn')
+const statistics = require('../statistics')
 
 const debug = require('debug')
 const log = debug('iptb-dht-test:network:setup')
@@ -80,15 +81,6 @@ class Network {
 
   // save to file
   saveAnalysis () {
-    console.log('FINAL ANALYSIS')
-
-    console.log(`Put failed error: ${this._analysis.put.failError}`)
-    console.log(`Put failed offline: ${this._analysis.put.failOffline}`)
-
-    console.log(`Get failed error: ${this._analysis.get.failError}`)
-    console.log(`Get failed offline: ${this._analysis.get.failOffline}`)
-    console.log(`Get failed expected value (not synced): ${this._analysis.get.failExpected}`)
-
     const result = {
       inputs: {
         n: this._n,
@@ -101,6 +93,7 @@ class Network {
 
     const filename = `${(new Date).getTime()}-${this._n}-${this._iterations}-${this._lookupFactor}-${this._churnFactor}`
 
+    statistics.get(result)
     fs.writeFileSync(`${process.cwd()}/results/${filename}.json`, JSON.stringify(result, null, 4), { flag: 'wx' })
   }
 }
