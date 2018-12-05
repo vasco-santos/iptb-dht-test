@@ -11,7 +11,8 @@ const log = debug('iptb-dht-test:network:setup')
 log.error = debug('iptb-dht-test:network:setup:error')
 
 class Network {
-  constructor (n, iterations, lookupFactor, churnFactor) {
+  constructor (implementation, n, iterations, lookupFactor, churnFactor) {
+    this._implementation = implementation
     this._n = n
     this._iterations = iterations
     this._lookupFactor = lookupFactor
@@ -25,7 +26,7 @@ class Network {
     let out
 
     // Create iptb testbed with js-ipfs nodes
-    await execa.shell(`iptb testbed create -count ${this._n} -type localipfs -force -attr binary,$(which jsipfs)`)
+    await execa.shell(`iptb testbed create -count ${this._n} -type localipfs -force -attr binary,$(which ${this._implementation})`)
     log('testbed created')
 
     // Init repos
@@ -37,7 +38,11 @@ class Network {
     log('node 0 repo properly configured')
 
     // Start node 0
-    await execa.shell('iptb start 0 --wait -- --enable-dht-experiment')
+    if (this._implementation === 'jsipfs') {
+      await execa.shell('iptb start 0 --wait -- --enable-dht-experiment')
+    } else {
+      await execa.shell('iptb start 0 --wait')
+    }
 
     out = await execa.shell('iptb run 0 -- ipfs id --format="<addrs>"')
     const addr = out.stdout.split(/\r?\n/)[2]
@@ -47,8 +52,11 @@ class Network {
     // Set proper config to the remaning nodes and start them
     for (let i = 1; i < this._n; i++) {
       await execa.shell(`iptb run ${i} -- ipfs config --json Bootstrap '["${addr}"]'`)
-      // ipfs config --json Bootstrap '["/ip4/127.0.0.1/tcp/59163/ipfs/QmYEouqLdPepu5GiVL9LLxSByvophh8XaSq8wmrXWzupu6"]'
-      await execa.shell(`iptb start ${i} --wait -- --enable-dht-experiment`)
+      if (this._implementation === 'jsipfs') {
+        await execa.shell(`iptb start ${i} --wait -- --enable-dht-experiment`)
+      } else {
+        await execa.shell(`iptb start ${i} --wait`)
+      }
       log(`node ${i} repo properly configured and node started`)
     }
 
@@ -82,6 +90,7 @@ class Network {
   // save to file
   saveAnalysis () {
     const result = {
+      implementation: this._implementation,
       inputs: {
         n: this._n,
         i: this._iterations,
@@ -91,7 +100,7 @@ class Network {
       results: this._analysis
     }
 
-    const filename = `${(new Date).getTime()}-${this._n}-${this._iterations}-${this._lookupFactor}-${this._churnFactor}`
+    const filename = `${(new Date).getTime()}-${this._implementation}-${this._n}-${this._iterations}-${this._lookupFactor}-${this._churnFactor}`
 
     statistics.get(result)
     fs.writeFileSync(`${process.cwd()}/results/${filename}.json`, JSON.stringify(result, null, 4), { flag: 'wx' })

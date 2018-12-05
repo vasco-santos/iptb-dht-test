@@ -1,8 +1,8 @@
 # iptb-dht-test
 
-`ìptb-dht-test` aims to create stress tests for the DHT being used in `js-ipfs`.
+`ìptb-dht-test` aims to create stress tests for the DHT being used in `ipfs`.
 
-**ATTENTION:** This is currently a WIP work. It needs [ipfs/js-ipfs#856](https://github.com/ipfs/js-ipfs/pull/856) to be used, since the `js-ipfs` DHT cli is not released yet.
+**ATTENTION:** This is currently a WIP work. If you intend to test the `js-ipfs`, you need to use [ipfs/js-ipfs#856](https://github.com/ipfs/js-ipfs/pull/856), since the `js-ipfs` DHT cli is not released yet.
 
 ## Table of Contents
 
@@ -26,6 +26,10 @@ The main focus of these tests are to test two different workloads, which usually
 ### js-ipfs through CLI
 
 Information can be obtained in [ipfs/js-ipfs/#through-command-line-tool](https://github.com/ipfs/js-ipfs/#through-command-line-tool).
+
+### go-ipfs
+
+Information can be ontained in [ipfs/go-ipfs#install](https://github.com/ipfs/go-ipfs#install)
 
 ### IPTB
 
@@ -51,6 +55,8 @@ Start a dht simulation
 Options:
   --version              Show version number                           [boolean]
   --help                 Show help                                     [boolean]
+  --implementation       ipfs implementation. (ipfs or jsipfs)
+                                                             [default: "jsipfs"]
   --nodes, -n            Number of nodes.                          [default: 10]
   --iterations, -i       Number of iterations of putting and getting data.
                                                                   [default: 200]
