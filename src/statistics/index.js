@@ -8,6 +8,8 @@ const _average = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length
 const _stats = (data) => {
   print('\n--- FINAL ANALYSIS ---\n')
 
+  print(`Implementation: ${data.implementation}\n`)
+
   print('INPUTS: \n')
   print(`- Iterations: ${data.inputs.i}`)
   print(`- Nodes: ${data.inputs.n}`)

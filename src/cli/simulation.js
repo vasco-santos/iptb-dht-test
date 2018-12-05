@@ -6,6 +6,10 @@ module.exports = {
   command: 'simulation [options]',
   describe: 'Start a dht simulation',
   builder: {
+    implementation: {
+      default: 'jsipfs',
+      describe: 'ipfs implementation. (ipfs or jsipfs)'
+    },
     nodes: {
       default: 10,
       alias: 'n',
@@ -32,9 +36,14 @@ module.exports = {
     const iterations = argv.iterations || 200
     const lookupFactor = argv.ld || 2
     const churnFactor = argv.cf || 2
+    let implementation = 'jsipfs'
+
+    if (argv.implementation && argv.implementation === 'ipfs') {
+      implementation = argv.implementation
+    }
 
     // setup network
-    const network = new Network(n, iterations, lookupFactor, churnFactor)
+    const network = new Network(implementation, n, iterations, lookupFactor, churnFactor)
     await network.setup()
 
     // start simulation
