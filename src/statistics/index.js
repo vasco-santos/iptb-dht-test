@@ -27,7 +27,7 @@ const _stats = (data) => {
   print(`\t- Round trip time: ${_average(data.results.get.rtt)} ms`)
   print(`\t- failed error: ${data.results.get.failError}`)
   print(`\t- failed offline: ${data.results.get.failOffline}`)
-  print(`\t- failed expected value (not synec): ${data.results.get.failExpected}`)
+  print(`\t- failed expected value (outdated): ${data.results.get.failExpected}`)
 }
 
 module.exports = {

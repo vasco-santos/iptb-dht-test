@@ -54,5 +54,7 @@ module.exports = {
 
     // save analysis
     network.saveAnalysis()
+
+    process.exit()
   }
 }
