@@ -11,10 +11,11 @@ const log = debug('iptb-dht-test:network:setup')
 log.error = debug('iptb-dht-test:network:setup:error')
 
 class Network {
-  constructor (implementation, n, iterations, lookupFactor, churnFactor) {
+  constructor (implementation, n, iterations, waitTime, lookupFactor, churnFactor) {
     this._implementation = implementation
     this._n = n
     this._iterations = iterations
+    this._waitTime = waitTime
     this._lookupFactor = lookupFactor
     this._churnFactor = churnFactor
     this._ipfsExec = undefined
@@ -74,7 +75,7 @@ class Network {
     this._networkChurn.start()
 
     // start lookup
-    this._analysis = await lookup(this._ipfsExec, this._n, this._lookupFactor, this._iterations)
+    this._analysis = await lookup(this._ipfsExec, this._n, this._waitTime, this._lookupFactor, this._iterations)
 
     // stop churn
     await this._networkChurn.stop()

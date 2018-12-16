@@ -8,6 +8,7 @@ module.exports = {
   builder: {
     implementation: {
       default: 'jsipfs',
+      alias: 'imp',
       describe: 'ipfs implementation. (ipfs or jsipfs)'
     },
     nodes: {
@@ -19,6 +20,11 @@ module.exports = {
       default: 200,
       alias: 'i',
       describe: 'Number of iterations of putting and getting data.',
+    },
+    'wait-time': {
+      default: 500,
+      alias: 'wt',
+      describe: 'time to wait between put a key and try to get it.'
     },
     'lookup-factor': {
       default: 2,
@@ -34,6 +40,7 @@ module.exports = {
   async handler(argv) {
     const n = argv.nodes || 10
     const iterations = argv.iterations || 200
+    const waitTime = argv.wt || 500
     const lookupFactor = argv.ld || 2
     const churnFactor = argv.cf || 2
     let implementation = 'jsipfs'
@@ -43,7 +50,7 @@ module.exports = {
     }
 
     // setup network
-    const network = new Network(implementation, n, iterations, lookupFactor, churnFactor)
+    const network = new Network(implementation, n, iterations, waitTime, lookupFactor, churnFactor)
     await network.setup()
 
     // start simulation
