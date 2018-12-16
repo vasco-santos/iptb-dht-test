@@ -1,6 +1,6 @@
 'use strict'
 
-const lookup = async (ipfsExec, n, factor, iterations) => {
+const lookup = async (ipfsExec, n, waitTime, factor, iterations) => {
   let out
   let analysis = {
     put: {
@@ -49,18 +49,21 @@ const lookup = async (ipfsExec, n, factor, iterations) => {
 
     // Check if we have previous put that key
     if (data[keyToGet]) {
-      const getStart = (new Date).getTime()
-      // Get to the DHT
-      out = await ipfsExec(peerId, `dht get ${key}`)
+      const tid = setTimeout(async () => {
+        const getStart = (new Date).getTime()
+        // Get to the DHT
+        out = await ipfsExec(peerId, `dht get ${key}`)
 
-      analysis.get.rtt.push((new Date).getTime() - getStart)
-      if (out.stderr) {
-        analysis.get.failError = analysis.get.failError + 1
-      } else if (out.stdout.includes('this command must be run in online mode')) {
-        analysis.get.failOffline = analysis.get.failOffline + 1
-      } else if (!out.stdout.includes(data[key])) {
-        analysis.get.failExpected = analysis.get.failExpected + 1
-      }
+        analysis.get.rtt.push((new Date).getTime() - getStart)
+        if (out.stderr) {
+          analysis.get.failError = analysis.get.failError + 1
+        } else if (out.stdout.includes('this command must be run in online mode')) {
+          analysis.get.failOffline = analysis.get.failOffline + 1
+        } else if (!out.stdout.includes(data[key])) {
+          analysis.get.failExpected = analysis.get.failExpected + 1
+        }
+        clearTimeout(tid)
+      }, waitTime)
     }
 
     i++
